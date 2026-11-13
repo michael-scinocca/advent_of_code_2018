@@ -1,61 +1,38 @@
-use std::{collections::{HashMap, VecDeque}, fmt::Display};
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt::Display,
+};
 
 struct Marbles {
     marbles: VecDeque<u64>,
-    current_index: usize,
 }
 
 impl Marbles {
     fn new() -> Self {
         Marbles {
             marbles: VecDeque::from([0]),
-            current_index: 0,
         }
     }
 
     fn remove_marble(&mut self) -> u64 {
-        for _ in 0..7 {
-            if self.current_index == 0 {
-                self.current_index = self.marbles.len();
-            }
+        self.marbles.rotate_right(7);
 
-            self.current_index -= 1;
-        }
-
-        let removed = self.marbles.remove(self.current_index);
-
-        if self.current_index == self.marbles.len() {
-            self.current_index = 0;
-        }
-
-        removed.unwrap()
+        self.marbles.pop_front().unwrap()
     }
 
     fn place_marble(&mut self, marble: u64) {
-        self.current_index += 1;
-
-        if self.current_index >= self.marbles.len() {
-            self.current_index = 0;
+        for _ in 0..2 {
+            self.marbles.rotate_left(1);
         }
 
-        self.current_index += 1;
-
-        if self.current_index == self.marbles.len() {
-            self.marbles.push_back(marble);
-        } else {
-            self.marbles.insert(self.current_index, marble);
-        }
+        self.marbles.push_front(marble);
     }
 }
 
 impl Display for Marbles {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (i, marble) in self.marbles.iter().enumerate() {
-            if i == self.current_index {
-                write!(f, "({}) ", marble)?
-            } else {
-                write!(f, " {} ", marble)?
-            }
+        for marble in &self.marbles {
+            write!(f, " {} ", marble)?
         }
 
         Ok(())
